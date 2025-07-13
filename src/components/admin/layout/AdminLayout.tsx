@@ -12,7 +12,13 @@ import {
   SearchOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  ShoppingOutlined
+  ShoppingOutlined,
+  TeamOutlined,
+  ShareAltOutlined,
+  MessageOutlined,
+  TrophyOutlined,
+  HeartOutlined,
+  StarOutlined
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -62,6 +68,43 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       key: '/admin/analytics',
       icon: <BarChartOutlined />,
       label: 'Analytics',
+    },
+    {
+      key: 'social-hub',
+      icon: <HeartOutlined />,
+      label: 'Social Hub',
+      children: [
+        {
+          key: '/admin/social/overview',
+          icon: <DashboardOutlined />,
+          label: 'Social Overview',
+        },
+        {
+          key: '/admin/social/groups',
+          icon: <TeamOutlined />,
+          label: 'Groups/Community',
+        },
+        {
+          key: '/admin/social/invites',
+          icon: <UserOutlined />,
+          label: 'Friend & Invite',
+        },
+        {
+          key: '/admin/social/sharing',
+          icon: <ShareAltOutlined />,
+          label: 'Product Sharing',
+        },
+        {
+          key: '/admin/social/reviews',
+          icon: <MessageOutlined />,
+          label: 'Reviews',
+        },
+        {
+          key: '/admin/social/campaigns',
+          icon: <TrophyOutlined />,
+          label: 'Viral Campaign',
+        },
+      ],
     },
     {
       key: '/admin/settings',

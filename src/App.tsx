@@ -21,6 +21,15 @@ import AdminGamesPage from './pages/admin/AdminGamesPage';
 import AdminVouchersPage from './pages/admin/AdminVouchersPage';
 import AdminAnalyticsPage from './pages/admin/AdminAnalyticsPage';
 import AdminSettingsPage from './pages/admin/AdminSettingsPage';
+import AdminLayout from './components/admin/layout/AdminLayout';
+
+// Social Hub Admin Pages
+import SocialOverviewPage from './pages/admin/SocialOverviewPage';
+import GroupManagementPage from './pages/admin/GroupManagementPage';
+import FriendInviteTrackingPage from './pages/admin/FriendInviteTrackingPage';
+import ProductSharingAnalyticsPage from './pages/admin/ProductSharingAnalyticsPage';
+import ReviewManagementPage from './pages/admin/ReviewManagementPage';
+import ViralCampaignPage from './pages/admin/ViralCampaignPage';
 
 // Ant Design theme configuration
 const theme = {
@@ -60,15 +69,26 @@ function App() {
               path="/admin/*" 
               element={
                 isAdminAuthenticated ? (
-                  <Routes>
-                    <Route path="/dashboard" element={<AdminDashboardPage />} />
-                    <Route path="/users" element={<AdminUsersPage />} />
-                    <Route path="/games" element={<AdminGamesPage />} />
-                    <Route path="/vouchers" element={<AdminVouchersPage />} />
-                    <Route path="/analytics" element={<AdminAnalyticsPage />} />
-                    <Route path="/settings" element={<AdminSettingsPage />} />
-                    <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
-                  </Routes>
+                  <AdminLayout>
+                    <Routes>
+                      <Route path="/dashboard" element={<AdminDashboardPage />} />
+                      <Route path="/users" element={<AdminUsersPage />} />
+                      <Route path="/games" element={<AdminGamesPage />} />
+                      <Route path="/vouchers" element={<AdminVouchersPage />} />
+                      <Route path="/analytics" element={<AdminAnalyticsPage />} />
+                      
+                      {/* Social Hub Routes */}
+                      <Route path="/social/overview" element={<SocialOverviewPage />} />
+                      <Route path="/social/groups" element={<GroupManagementPage />} />
+                      <Route path="/social/invites" element={<FriendInviteTrackingPage />} />
+                      <Route path="/social/sharing" element={<ProductSharingAnalyticsPage />} />
+                      <Route path="/social/reviews" element={<ReviewManagementPage />} />
+                      <Route path="/social/campaigns" element={<ViralCampaignPage />} />
+                      
+                      <Route path="/settings" element={<AdminSettingsPage />} />
+                      <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
+                    </Routes>
+                  </AdminLayout>
                 ) : (
                   <Navigate to="/admin/login" replace />
                 )
