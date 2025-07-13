@@ -2,7 +2,6 @@ import React from 'react';
 import { Card, Form, Input, Switch, Button, Divider, InputNumber, Space, message } from 'antd';
 import { SaveOutlined, ReloadOutlined } from '@ant-design/icons';
 import { motion } from 'framer-motion';
-import AdminLayout from '../../components/admin/layout/AdminLayout';
 import { useAdminStore } from '../../stores/adminStore';
 
 const AdminSettingsPage: React.FC = () => {
@@ -19,12 +18,11 @@ const AdminSettingsPage: React.FC = () => {
   };
 
   return (
-    <AdminLayout>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
         <Card>
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-gray-800">System Settings</h2>
@@ -170,7 +168,6 @@ const AdminSettingsPage: React.FC = () => {
           </Form>
         </Card>
       </motion.div>
-    </AdminLayout>
   );
 };
 

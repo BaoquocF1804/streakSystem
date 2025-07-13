@@ -1,13 +1,8 @@
 import React from 'react';
-import AdminLayout from '../../components/admin/layout/AdminLayout';
 import GameConfiguration from '../../components/admin/GameConfiguration';
 
 const AdminGamesPage: React.FC = () => {
-  return (
-    <AdminLayout>
-      <GameConfiguration />
-    </AdminLayout>
-  );
+  return <GameConfiguration />;
 };
 
 export default AdminGamesPage; 
