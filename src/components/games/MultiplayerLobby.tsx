@@ -15,8 +15,15 @@ const MultiplayerLobby: React.FC = () => {
     games
   } = useGameStore();
 
-  const multiplayerStats = getMultiplayerStats();
+  const rawMultiplayerStats = getMultiplayerStats();
   const multiplayerGames = games.filter(g => g.multiplayerSupport);
+  
+  // Calculate derived stats
+  const multiplayerStats = {
+    ...rawMultiplayerStats,
+    winRate: rawMultiplayerStats.totalMatches > 0 ? (rawMultiplayerStats.wins / rawMultiplayerStats.totalMatches) * 100 : 0,
+    currentStreak: 0 // For now, we'll set this to 0. Could be calculated from recent match results
+  };
 
   const handleCreateRoom = (gameId: string) => {
     const code = createMultiplayerMatch(gameId);
@@ -259,7 +266,7 @@ const MultiplayerLobby: React.FC = () => {
                   { rank: 2, name: 'QuickThink', score: 13280, icon: '🥈' },
                   { rank: 3, name: 'MathWiz', score: 12140, icon: '🥉' },
                   { rank: 4, name: 'MemoryKing', score: 11900, icon: '🏅' },
-                  { rank: 5, name: 'You', score: multiplayerStats.totalBonusPoints, icon: '🎯' }
+                  { rank: 5, name: 'You', score: multiplayerStats.totalBonusPoints || 0, icon: '🎯' }
                 ].map((player) => (
                   <div key={player.rank} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <div className="flex items-center space-x-3">
@@ -270,7 +277,7 @@ const MultiplayerLobby: React.FC = () => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="font-bold text-green-600">{player.score.toLocaleString()}</div>
+                      <div className="font-bold text-green-600">{(player.score || 0).toLocaleString()}</div>
                       <div className="text-sm text-gray-600">Points</div>
                     </div>
                   </div>

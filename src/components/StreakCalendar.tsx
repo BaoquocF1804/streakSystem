@@ -25,7 +25,7 @@ const StreakCalendar: React.FC<StreakCalendarProps> = ({ type = 'daily' }) => {
     return daysDiff >= 0 && daysDiff < streakData.currentStreak;
   };
 
-  const dateCellRender = (date: Dayjs) => {
+  const cellRender = (date: Dayjs) => {
     const hasActivity = getDateStatus(date);
     const isToday = date.format('YYYY-MM-DD') === dayjs().format('YYYY-MM-DD');
     
@@ -52,7 +52,7 @@ const StreakCalendar: React.FC<StreakCalendarProps> = ({ type = 'daily' }) => {
       </h3>
       <Calendar
         fullscreen={false}
-        dateCellRender={dateCellRender}
+        cellRender={cellRender}
         className="streak-calendar"
       />
       <div className="mt-3 flex items-center justify-between text-sm text-gray-600">

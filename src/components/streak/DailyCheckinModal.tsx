@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Modal, Button, Progress, Calendar, message } from 'antd';
 import { FireOutlined, GiftOutlined, CalendarOutlined } from '@ant-design/icons';
 import { motion } from 'framer-motion';
-import confetti from 'react-confetti';
+import confetti from 'canvas-confetti';
 import dayjs, { Dayjs } from 'dayjs';
 import { useAppStore } from '../../stores/appStore';
 
@@ -12,7 +12,6 @@ interface DailyCheckinModalProps {
 }
 
 const DailyCheckinModal: React.FC<DailyCheckinModalProps> = ({ visible, onClose }) => {
-  const [showConfetti, setShowConfetti] = useState(false);
   const [loading, setLoading] = useState(false);
   const { dailyCheckin, checkinToday, claimCheckinReward } = useAppStore();
 
@@ -26,17 +25,25 @@ const DailyCheckinModal: React.FC<DailyCheckinModalProps> = ({ visible, onClose 
     
     setTimeout(() => {
       checkinToday();
-      setShowConfetti(true);
+      // Trigger confetti animation
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
       message.success('🎉 Điểm danh thành công! Streak được duy trì!');
       setLoading(false);
-      
-      // Hide confetti after 3 seconds
-      setTimeout(() => setShowConfetti(false), 3000);
     }, 1000);
   };
 
   const handleClaimReward = (day: number) => {
     claimCheckinReward(day);
+    // Trigger confetti animation
+    confetti({
+      particleCount: 50,
+      spread: 60,
+      origin: { y: 0.7 }
+    });
     message.success('🎁 Nhận thưởng thành công!');
   };
 
@@ -46,7 +53,7 @@ const DailyCheckinModal: React.FC<DailyCheckinModalProps> = ({ visible, onClose 
     return daysDiff >= 0 && daysDiff < dailyCheckin.currentStreak;
   };
 
-  const dateCellRender = (date: Dayjs) => {
+  const cellRender = (date: Dayjs) => {
     const hasActivity = getDateStatus(date);
     const isToday = date.format('YYYY-MM-DD') === today;
     
@@ -68,17 +75,7 @@ const DailyCheckinModal: React.FC<DailyCheckinModalProps> = ({ visible, onClose 
   const upcomingReward = dailyCheckin.rewards.find(r => !r.claimed && dailyCheckin.currentStreak < r.day);
 
   return (
-    <>
-      {showConfetti && (
-        <confetti
-          width={window.innerWidth}
-          height={window.innerHeight}
-          recycle={false}
-          numberOfPieces={200}
-        />
-      )}
-      
-      <Modal
+    <Modal
         title={
           <div className="flex items-center space-x-2">
             <CalendarOutlined className="text-blue-500" />
@@ -125,7 +122,7 @@ const DailyCheckinModal: React.FC<DailyCheckinModalProps> = ({ visible, onClose 
             </h4>
             <Calendar
               fullscreen={false}
-              dateCellRender={dateCellRender}
+              cellRender={cellRender}
               className="streak-calendar"
             />
           </div>
@@ -212,7 +209,6 @@ const DailyCheckinModal: React.FC<DailyCheckinModalProps> = ({ visible, onClose 
           </div>
         </div>
       </Modal>
-    </>
   );
 };
 
