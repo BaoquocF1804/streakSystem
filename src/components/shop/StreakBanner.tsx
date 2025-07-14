@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Alert, Progress, Button } from 'antd';
 import { FireOutlined, GiftOutlined, CalendarOutlined } from '@ant-design/icons';
 import { motion } from 'framer-motion';
@@ -6,7 +6,21 @@ import { useAppStore } from '../../stores/appStore';
 import dayjs from 'dayjs';
 
 const StreakBanner: React.FC = () => {
-  const { dailyCheckin, shoppingStreak, weeklyStreak, setShowCheckinModal } = useAppStore();
+  const { dailyCheckin, shoppingStreak, weeklyStreak, setShowCheckinModal, predictStreakDrop, streakDropPrediction } = useAppStore();
+  const [loadingPrediction, setLoadingPrediction] = useState(false);
+  const [prediction, setPrediction] = useState<any>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    setLoadingPrediction(true);
+    predictStreakDrop().then((result) => {
+      if (mounted) {
+        setPrediction(result);
+        setLoadingPrediction(false);
+      }
+    });
+    return () => { mounted = false; };
+  }, [predictStreakDrop]);
   
   const today = dayjs().format('YYYY-MM-DD');
   const hasCheckedInToday = dailyCheckin.lastCheckin === today;
@@ -97,6 +111,86 @@ const StreakBanner: React.FC = () => {
           showIcon
           className="border-green-300 bg-green-50"
         />
+      </motion.div>
+    );
+  }
+
+  if (prediction && prediction.message) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-6"
+      >
+        <Alert
+          message="🔮 Dự đoán Streak"
+          description={prediction.message}
+          type="info"
+          showIcon
+          className="border-blue-300 bg-blue-50 mb-4"
+        />
+        {/* Render the rest of the banner as usual below */}
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6 border border-blue-200">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-bold text-gray-800 flex items-center">
+              <FireOutlined className="text-orange-500 mr-2" />
+              Điểm danh mỗi ngày - Nhận quà liên tiếp!
+            </h3>
+            <Button
+              type="primary"
+              icon={<CalendarOutlined />}
+              onClick={() => setShowCheckinModal(true)}
+              className="bg-gradient-to-r from-blue-500 to-purple-600 border-none"
+            >
+              Xem chi tiết
+            </Button>
+          </div>
+          <div className="grid md:grid-cols-3 gap-4">
+            {/* Daily Checkin */}
+            <div className="bg-white rounded-lg p-4">
+              <div className="flex items-center space-x-2 mb-2">
+                <FireOutlined className="text-orange-500" />
+                <span className="font-semibold">Daily Check-in</span>
+              </div>
+              <div className="text-2xl font-bold text-orange-600 mb-1">
+                {dailyCheckin.currentStreak} ngày
+              </div>
+              <div className="text-sm text-gray-600">
+                {dailyCheckin.lastCheckin === dayjs().format('YYYY-MM-DD') ? '✅ Đã điểm danh hôm nay' : '⏰ Chưa điểm danh'}
+              </div>
+            </div>
+            {/* Shopping Streak */}
+            <div className="bg-white rounded-lg p-4">
+              <div className="flex items-center space-x-2 mb-2">
+                <GiftOutlined className="text-purple-500" />
+                <span className="font-semibold">Shopping Streak</span>
+              </div>
+              <div className="text-2xl font-bold text-purple-600 mb-1">
+                {shoppingStreak.currentStreak} ngày
+              </div>
+              <div className="text-sm text-gray-600">
+                {shoppingStreak.lastOrder === dayjs().format('YYYY-MM-DD') ? '✅ Đã mua hàng hôm nay' : '🛍️ Mua hàng để tăng streak'}
+              </div>
+            </div>
+            {/* Weekly Progress */}
+            <div className="bg-white rounded-lg p-4">
+              <div className="flex items-center space-x-2 mb-2">
+                <CalendarOutlined className="text-green-500" />
+                <span className="font-semibold">Weekly Goal</span>
+              </div>
+              <div className="mb-2">
+                <Progress
+                  percent={(weeklyStreak.purchasesThisWeek / weeklyStreak.targetPurchases) * 100}
+                  strokeColor="#52c41a"
+                  size="small"
+                />
+              </div>
+              <div className="text-sm text-gray-600">
+                {weeklyStreak.purchasesThisWeek}/{weeklyStreak.targetPurchases} đơn hàng tuần này
+              </div>
+            </div>
+          </div>
+        </div>
       </motion.div>
     );
   }

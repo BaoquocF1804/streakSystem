@@ -15,9 +15,17 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
   const onFinish = async (values: { email: string; password: string }) => {
     setLoading(true);
     try {
-      const success = await login(values.email, values.password);
-      if (success) {
+      const result = await login(values.email, values.password);
+      if (result && result.success) {
         message.success('Đăng nhập thành công!');
+        if (result.offer_notification) {
+          const offer = result.offer_notification as any;
+          if (typeof offer === 'object' && offer.title && offer.message) {
+            message.info(`${offer.title}\n${offer.message}`);
+          } else if (typeof offer === 'string') {
+            message.info(offer);
+          }
+        }
       }
     } catch (error) {
       message.error('Đăng nhập thất bại!');
