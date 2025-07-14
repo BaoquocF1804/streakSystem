@@ -285,7 +285,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
     // Check if email is user_b@example.com
     if (email === 'user_b@example.com') {
       try {
-        const response = await fetch('http://localhost:8080/api/login', {
+        const response = await fetch('https://4e51178d7c46.ngrok-free.app/api/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
