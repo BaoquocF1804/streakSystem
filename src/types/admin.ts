@@ -314,4 +314,19 @@ export interface AdminStore extends AdminState {
   addNotification: (notification: Omit<AdminNotification, 'id' | 'timestamp'>) => void;
   markNotificationRead: (notificationId: string) => void;
   updateSettings: (settings: Partial<AdminSettings>) => Promise<void>;
+  
+  // Global Configuration Management
+  updateGlobalConfig: (config: any) => Promise<boolean>;
+  syncConfigToUsers: () => Promise<boolean>;
+  resetGlobalConfig: (section?: string) => Promise<boolean>;
+  getGlobalConfigStats: () => Promise<{
+    activeFeatures: number;
+    totalFeatures: number;
+    maxDailyGames: number;
+    maxDailyVouchers: number;
+    maxDailyPoints: number;
+    lastUpdated: string;
+    maintenanceMode: boolean;
+    registrationAllowed: boolean;
+  }>;
 } 

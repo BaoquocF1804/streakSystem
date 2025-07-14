@@ -21,6 +21,7 @@ import AdminGamesPage from './pages/admin/AdminGamesPage';
 import AdminVouchersPage from './pages/admin/AdminVouchersPage';
 import AdminAnalyticsPage from './pages/admin/AdminAnalyticsPage';
 import AdminSettingsPage from './pages/admin/AdminSettingsPage';
+import GlobalConfigPage from './pages/admin/GlobalConfigPage';
 import AdminLayout from './components/admin/layout/AdminLayout';
 
 // Social Hub Admin Pages
@@ -86,6 +87,7 @@ function App() {
                       <Route path="/social/campaigns" element={<ViralCampaignPage />} />
                       
                       <Route path="/settings" element={<AdminSettingsPage />} />
+                      <Route path="/config" element={<GlobalConfigPage />} />
                       <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
                     </Routes>
                   </AdminLayout>

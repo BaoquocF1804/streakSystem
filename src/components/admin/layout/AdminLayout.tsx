@@ -111,6 +111,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       icon: <SettingOutlined />,
       label: 'Settings',
     },
+    {
+      key: '/admin/config',
+      icon: <SettingOutlined />,
+      label: 'Global Config',
+    },
   ];
 
   const handleMenuClick = ({ key }: { key: string }) => {

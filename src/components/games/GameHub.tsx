@@ -4,6 +4,7 @@ import { RocketOutlined, TrophyOutlined, TeamOutlined, EnvironmentOutlined } fro
 import { motion } from 'framer-motion';
 import { useGameStore } from '../../stores/gameStore';
 import { useAppStore } from '../../stores/appStore';
+import { useGameConfig, useFeatureConfig, useUserLimits } from '../../hooks/useRealTimeConfig';
 import MemoryGame from './MemoryGame';
 import MathQuiz from './MathQuiz';
 import CommunityTrees from './CommunityTrees';
@@ -14,6 +15,7 @@ const GameHub: React.FC = () => {
   const [isMultiplayerMode, setIsMultiplayerMode] = useState(false);
   const [showMultiplayerModal, setShowMultiplayerModal] = useState(false);
   const [roomCode, setRoomCode] = useState('');
+  const [dailyGamesPlayed, setDailyGamesPlayed] = useState(0);
   
   const { 
     games, 
@@ -32,6 +34,24 @@ const GameHub: React.FC = () => {
   } = useGameStore();
   
   const { isAuthenticated } = useAppStore();
+  
+  // Use real-time config hooks
+  const { 
+    maxDailyPlays, 
+    enableMultiplayer, 
+    streakBonusMultiplier, 
+    isMultiplayerEnabled, 
+    timeouts,
+    pointsPerGame,
+    experiencePerGame
+  } = useGameConfig();
+  
+  const { 
+    communityTrees: communityTreesEnabled,
+    multiplayerGames: multiplayerGamesEnabled
+  } = useFeatureConfig();
+  
+  const { isActionAllowed, getRemainingLimit } = useUserLimits();
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -61,12 +81,31 @@ const GameHub: React.FC = () => {
       return;
     }
     
+    // Check daily games limit using real-time config
+    if (!isActionAllowed('daily_games', dailyGamesPlayed)) {
+      const remaining = getRemainingLimit('daily_games', dailyGamesPlayed);
+      message.warning(`You've reached the daily limit! You can play ${remaining} more games today.`);
+      return;
+    }
+    
+    // Check if multiplayer is enabled in config
+    if (multiplayer && !isMultiplayerEnabled) {
+      message.error('Multiplayer games are currently disabled');
+      return;
+    }
+    
+    if (multiplayer && !multiplayerGamesEnabled) {
+      message.error('Multiplayer feature is not available');
+      return;
+    }
+    
     if (multiplayer) {
       setIsMultiplayerMode(true);
       setShowMultiplayerModal(true);
     } else {
       setIsMultiplayerMode(false);
       playGame(gameId);
+      setDailyGamesPlayed(prev => prev + 1);
     }
     
     setActiveGame(gameId);

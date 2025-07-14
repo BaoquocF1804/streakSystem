@@ -3,10 +3,15 @@ import { Alert, Progress, Button } from 'antd';
 import { FireOutlined, GiftOutlined, CalendarOutlined } from '@ant-design/icons';
 import { motion } from 'framer-motion';
 import { useAppStore } from '../../stores/appStore';
+import { useRealTimeConfig } from '../../hooks/useRealTimeConfig';
 import dayjs from 'dayjs';
 
 const StreakBanner: React.FC = () => {
   const { dailyCheckin, shoppingStreak, weeklyStreak, setShowCheckinModal } = useAppStore();
+  
+  // Use real-time config
+  const { config } = useRealTimeConfig();
+  const streakConfig = config.streaks;
   
   const today = dayjs().format('YYYY-MM-DD');
   const hasCheckedInToday = dailyCheckin.lastCheckin === today;

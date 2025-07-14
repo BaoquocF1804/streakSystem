@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import confetti from 'react-confetti';
 import { Product } from '../../types';
 import { useAppStore } from '../../stores/appStore';
+import { useShopConfig } from '../../hooks/useRealTimeConfig';
 
 interface PurchaseModalProps {
   visible: boolean;
@@ -17,6 +18,14 @@ const PurchaseModal: React.FC<PurchaseModalProps> = ({ visible, product, onClose
   const [showConfetti, setShowConfetti] = useState(false);
   const [showReward, setShowReward] = useState(false);
   const { placeOrder, shoppingStreak } = useAppStore();
+  
+  // Use shop config
+  const { 
+    streakRequiredForDiscounts, 
+    freeShippingThreshold, 
+    discountPercentage,
+    isGroupBuyEnabled 
+  } = useShopConfig();
 
   if (!product) return null;
 

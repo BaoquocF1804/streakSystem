@@ -792,6 +792,152 @@ export const useAdminStore = create<AdminStore>()(
           message: 'Settings have been updated successfully',
           isRead: false
         });
+      },
+
+      // Global Configuration Management
+      updateGlobalConfig: async (config: any) => {
+        set({ loading: true });
+        
+        try {
+          // Simulate API call to update global config
+          await new Promise(resolve => setTimeout(resolve, 800));
+          
+          // Import config store dynamically to avoid circular dependency
+          const { useConfigStore } = await import('./configStore');
+          const configStore = useConfigStore.getState();
+          
+          // Update the global config
+          configStore.updateConfig(config);
+          
+          set({ loading: false });
+          
+          get().addNotification({
+            type: 'success',
+            title: 'Global Configuration Updated',
+            message: 'Settings have been applied system-wide and will affect all users',
+            isRead: false
+          });
+          
+          return true;
+        } catch (error) {
+          set({ loading: false });
+          
+          get().addNotification({
+            type: 'error',
+            title: 'Configuration Update Failed',
+            message: 'Failed to update global configuration. Please try again.',
+            isRead: false
+          });
+          
+          throw error;
+        }
+      },
+
+      syncConfigToUsers: async () => {
+        set({ loading: true });
+        
+        try {
+          // Simulate syncing configuration to all users
+          await new Promise(resolve => setTimeout(resolve, 1200));
+          
+          // In a real implementation, this would:
+          // 1. Send WebSocket messages to all connected users
+          // 2. Update user-specific cached configs
+          // 3. Trigger re-validation of user limits
+          
+          set({ loading: false });
+          
+          get().addNotification({
+            type: 'success',
+            title: 'Configuration Synced',
+            message: 'All users have been updated with the latest configuration',
+            isRead: false
+          });
+          
+          return true;
+        } catch (error) {
+          set({ loading: false });
+          
+          get().addNotification({
+            type: 'error',
+            title: 'Sync Failed',
+            message: 'Failed to sync configuration to users. Please try again.',
+            isRead: false
+          });
+          
+          throw error;
+        }
+      },
+
+      resetGlobalConfig: async (section?: string) => {
+        set({ loading: true });
+        
+        try {
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          const { useConfigStore } = await import('./configStore');
+          const configStore = useConfigStore.getState();
+          
+          if (section) {
+            configStore.resetConfigSection(section as any);
+          } else {
+            configStore.resetConfig();
+          }
+          
+          set({ loading: false });
+          
+          get().addNotification({
+            type: 'success',
+            title: 'Configuration Reset',
+            message: section 
+              ? `${section} configuration has been reset to defaults`
+              : 'All configuration has been reset to defaults',
+            isRead: false
+          });
+          
+          return true;
+        } catch (error) {
+          set({ loading: false });
+          
+          get().addNotification({
+            type: 'error',
+            title: 'Reset Failed',
+            message: 'Failed to reset configuration. Please try again.',
+            isRead: false
+          });
+          
+          throw error;
+        }
+      },
+
+      getGlobalConfigStats: async () => {
+        set({ loading: true });
+        
+        try {
+          await new Promise(resolve => setTimeout(resolve, 300));
+          
+          const { useConfigStore } = await import('./configStore');
+          const configStore = useConfigStore.getState();
+          const config = configStore.config;
+          
+          const stats = {
+            activeFeatures: Object.values(config.features).filter(Boolean).length,
+            totalFeatures: Object.keys(config.features).length,
+            maxDailyGames: config.games.maxDailyPlays,
+            maxDailyVouchers: config.shop.maxDailyVouchers,
+            maxDailyPoints: config.limits.maxPointsPerDay,
+            lastUpdated: configStore.lastUpdated,
+            maintenanceMode: config.system.maintenanceMode,
+            registrationAllowed: config.system.allowNewRegistrations
+          };
+          
+          set({ loading: false });
+          
+          return stats;
+        } catch (error) {
+          set({ loading: false });
+          throw error;
+        }
       }
     }),
     {
