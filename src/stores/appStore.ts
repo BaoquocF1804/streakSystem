@@ -177,7 +177,7 @@ const mockSocialNotifications: SocialCommerceNotification[] = [
 ];
 
 interface AppStore extends AppState {
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<{ success: boolean; offer_notification?: string }>;
   logout: () => void;
   register: (email: string, password: string, name: string) => Promise<boolean>;
   checkinToday: () => void;
@@ -192,6 +192,13 @@ interface AppStore extends AppState {
   joinGroupBuy: (groupBuyId: string) => void;
   createReviewChallenge: (productId: string, participants: string[]) => void;
   markNotificationAsRead: (notificationId: string) => void;
+  // Streak Drop Prediction
+  predictStreakDrop: () => Promise<any>;
+  streakDropPrediction: any;
+  ws: WebSocket | null;
+  wsStreakDropNotification: string | null;
+  connectWebSocket: (userId: number) => void;
+  clearWsStreakDropNotification: () => void;
 }
 
 export const useAppStore = create<AppStore>((set, get) => ({
@@ -232,6 +239,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
     ]
   },
   showCheckinModal: false,
+  streakDropPrediction: null,
   // Social Commerce State
   shareChains: mockShareChains,
   reviewChallenges: mockReviewChallenges,
@@ -270,22 +278,54 @@ export const useAppStore = create<AppStore>((set, get) => ({
     dailyWaterUsed: 0,
     maxDailyWater: 20
   },
+  ws: null,
+  wsStreakDropNotification: null,
 
   login: async (email: string, password: string) => {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const user: User = {
-      id: '1',
-      email,
-      name: email.split('@')[0],
-      avatar: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=100',
-      points: 1250,
-      badges: []
-    };
-    
-    set({ user, isAuthenticated: true });
-    return true;
+    // Check if email is user_b@example.com
+    if (email === 'user_b@example.com') {
+      try {
+        const response = await fetch('http://localhost:8080/api/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password }),
+        });
+
+        if (response.ok) {
+          const userData = await response.json();
+          const user: User = {
+            id: userData.id || userData.user_id?.toString() || '1',
+            email,
+            name: userData.name || userData.username || email.split('@')[0],
+            avatar: userData.avatar || 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=100',
+            points: userData.points || 1250,
+            badges: userData.badges || []
+          };
+          set({ user, isAuthenticated: true });
+          return { success: true, offer_notification: userData.offer_notification };
+        } else {
+          throw new Error('Login failed');
+        }
+      } catch (error) {
+        console.error('Login API error:', error);
+        throw error;
+      }
+    } else {
+      // Simulate API call for other emails (existing mock logic)
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      const user: User = {
+        id: '1',
+        email,
+        name: email.split('@')[0],
+        avatar: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=100',
+        points: 1250,
+        badges: []
+      };
+      set({ user, isAuthenticated: true });
+      return { success: true };
+    }
   },
 
   logout: () => {
@@ -498,5 +538,40 @@ export const useAppStore = create<AppStore>((set, get) => ({
           : notification
       )
     });
-  }
+  },
+
+  predictStreakDrop: async () => {
+    try {
+      const response = await fetch('http://localhost:8080/api/predict-streak-drop');
+      if (!response.ok) {
+        set({ streakDropPrediction: null });
+        return null;
+      }
+      const data = await response.json();
+      set({ streakDropPrediction: data });
+      return data;
+    } catch (error) {
+      set({ streakDropPrediction: null });
+      return null;
+    }
+  },
+  connectWebSocket: (userId: number) => {
+    if (get().ws) {
+      get().ws!.close();
+    }
+    const ws = new WebSocket(`ws://localhost:8080/ws/notify?user_id=${userId}`);
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'streak_drop_warning') {
+          set({ wsStreakDropNotification: data.message });
+        }
+      } catch (e) {}
+    };
+    ws.onclose = () => {
+      set({ ws: null });
+    };
+    set({ ws });
+  },
+  clearWsStreakDropNotification: () => set({ wsStreakDropNotification: null }),
 }));
